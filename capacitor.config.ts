@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.pottypal',
+  appId: 'com.pottypal.jyapps',
   appName: 'Potty Pal',
   webDir: 'dist',
   plugins: {

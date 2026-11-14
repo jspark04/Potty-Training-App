@@ -1,4 +1,4 @@
-package app.pottypal;
+package com.pottypal.jyapps;
 
 import com.getcapacitor.BridgeActivity;
 

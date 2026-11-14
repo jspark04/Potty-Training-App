@@ -26,8 +26,27 @@ jobs:
       - run: npx cap sync android
       - name: Build debug APK
         working-directory: android
-        run: ./gradlew assembleDebug --no-daemon
+        run: ./gradlew assembleDebug --no-daemon -PversionCode=${{ github.run_number }}
       - uses: actions/upload-artifact@v4
         with:
           name: potty-pal-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+
+      # Google Play bundle: only built once the upload-key secrets exist (see README).
+      - name: Build Play release bundle
+        if: env.KEYSTORE_BASE64 != ''
+        working-directory: android
+        env:
+          KEYSTORE_BASE64: ${{ secrets.UPLOAD_KEYSTORE_BASE64 }}
+          UPLOAD_KEYSTORE_PASSWORD: ${{ secrets.UPLOAD_KEYSTORE_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.p12"
+          UPLOAD_KEYSTORE_FILE="$RUNNER_TEMP/upload.p12" ./gradlew bundleRelease --no-daemon -PversionCode=${{ github.run_number }}
+          rm "$RUNNER_TEMP/upload.p12"
+      - uses: actions/upload-artifact@v4
+        if: env.KEYSTORE_BASE64 != ''
+        env:
+          KEYSTORE_BASE64: ${{ secrets.UPLOAD_KEYSTORE_BASE64 }}
+        with:
+          name: potty-pal-play-bundle
+          path: android/app/build/outputs/bundle/release/app-release.aab

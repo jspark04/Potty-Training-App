@@ -1,14 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "app.pottypal"
+    namespace = "com.pottypal.jyapps"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "app.pottypal"
+        applicationId "com.pottypal.jyapps"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        // CI passes -PversionCode=<run number>; Play requires it to increase with every upload.
+        versionCode((project.findProperty('versionCode') ?: '1') as int)
+        versionName "1.0.${project.findProperty('versionCode') ?: '0'}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -24,9 +25,20 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        // Play upload key, supplied by CI from repository secrets (never committed).
+        release {
+            def ks = System.getenv('UPLOAD_KEYSTORE_FILE')
+            if (ks) {
+                storeFile file(ks)
+                storePassword System.getenv('UPLOAD_KEYSTORE_PASSWORD')
+                keyAlias 'upload'
+                keyPassword System.getenv('UPLOAD_KEYSTORE_PASSWORD')
+            }
+        }
     }
     buildTypes {
         release {
+            signingConfig System.getenv('UPLOAD_KEYSTORE_FILE') ? signingConfigs.release : null
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
