@@ -6,6 +6,7 @@ import { dayKey, dryFor, journeyDay, stats } from '../lib/insights';
 import { isDue, remaining } from '../lib/session';
 import { EVENT_META, INTERVAL_STEPS, type AppState, type EventType } from '../lib/types';
 import { Gauge } from './Gauge';
+import { Icon } from './Icon';
 
 const LOG_ORDER: EventType[] = ['pee', 'poop', 'try', 'accident'];
 
@@ -83,7 +84,13 @@ export function Home({ state, now, onLog }: { state: AppState; now: number; onLo
             <span className="gauge-label">
               {session.status === 'nap' ? 'Napping 😴' : session.status === 'paused' ? 'Paused' : 'Next try in'}
             </span>
-            <span className="gauge-time">{clock(left ?? 0)}</span>
+            <span className="gauge-time" role="timer" aria-label={clock(left ?? 0)}>
+              {[...clock(left ?? 0)].map((c, i) => (
+                <i key={i} className={c === ':' ? 'sep' : ''} aria-hidden>
+                  {c}
+                </i>
+              ))}
+            </span>
           </>
         )}
         {due && (
@@ -119,27 +126,42 @@ export function Home({ state, now, onLog }: { state: AppState; now: number; onLo
         <div className="controls">
           {due ? (
             <button className="btn" onClick={() => snoozeTimer(5)}>
-              ⏰ Snooze 5 min
+              <Icon name="alarm" /> Snooze 5 min
             </button>
           ) : session.status === 'running' ? (
             <>
               <button className="btn" onClick={() => pauseTimer('paused')}>
-                ⏸ Pause
+                <Icon name="pause" /> Pause
               </button>
               <button className="btn" onClick={() => pauseTimer('nap')}>
-                🌙 Nap
+                <Icon name="moon" /> Nap
               </button>
             </>
           ) : (
             <button className="btn primary" onClick={resumeTimer}>
-              ▶ {session.status === 'nap' ? 'Awake' : 'Resume'}
+              <Icon name="play" /> {session.status === 'nap' ? 'Awake' : 'Resume'}
             </button>
           )}
           <button className="btn" onClick={endTheDay}>
-            ⏹ End day
+            <Icon name="stop" /> End day
           </button>
         </div>
       )}
+
+      <section className="strip" aria-label="Today so far">
+        <div>
+          <strong>{today.successes}</strong>
+          <small>in the potty</small>
+        </div>
+        <div>
+          <strong>{today.accidents}</strong>
+          <small>accidents</small>
+        </div>
+        <div>
+          <strong>{dry == null ? '–' : duration(dry)}</strong>
+          <small>dry streak</small>
+        </div>
+      </section>
 
       <section>
         <h2>{due ? `How did ${who} do?` : 'Log a moment'}</h2>
@@ -158,20 +180,6 @@ export function Home({ state, now, onLog }: { state: AppState; now: number; onLo
         </div>
       </section>
 
-      <section className="strip" aria-label="Today so far">
-        <div>
-          <strong>{today.successes}</strong>
-          <small>in the potty</small>
-        </div>
-        <div>
-          <strong>{today.accidents}</strong>
-          <small>accidents</small>
-        </div>
-        <div>
-          <strong>{dry == null ? '–' : duration(dry)}</strong>
-          <small>dry streak</small>
-        </div>
-      </section>
     </>
   );
 }

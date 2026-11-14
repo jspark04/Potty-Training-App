@@ -59,26 +59,51 @@ export async function requestNotifications(): Promise<boolean> {
 }
 
 const ALARM_ID = 1;
+const CHANNEL = 'potty-time';
+/** Follow-up reminders after the first alarm. */
+export const REPEAT_EVERY_MIN = 2;
+export const REPEAT_COUNT = 5;
+const ALARM_IDS = Array.from({ length: REPEAT_COUNT + 1 }, (_, i) => ({ id: ALARM_ID + i }));
+let channelReady: Promise<void> | null = null;
+
+function ensureChannel() {
+  channelReady ??= LocalNotifications.createChannel({
+    id: CHANNEL,
+    name: 'Potty time',
+    description: 'Rings when it is time for the next try',
+    importance: 5,
+    visibility: 1,
+    vibration: true,
+  }).catch(() => {});
+  return channelReady;
+}
 
 /**
  * Android app only: hand the next "potty time" to the system so it fires even when the app is
  * closed or the phone is locked. Pass null to clear it.
  */
-export async function syncAlarm(dueAt: number | null, childName: string) {
+export async function syncAlarm(dueAt: number | null, childName: string, repeat: boolean) {
   if (!isNative) return;
   try {
-    await LocalNotifications.cancel({ notifications: [{ id: ALARM_ID }] });
-    if (dueAt == null || dueAt <= Date.now()) return;
-    await LocalNotifications.schedule({
-      notifications: [
-        {
-          id: ALARM_ID,
-          title: 'Potty time! 🚽',
-          body: `Time for ${childName || 'your little one'} to try.`,
-          schedule: { at: new Date(dueAt), allowWhileIdle: true },
-        },
-      ],
-    });
+    await LocalNotifications.cancel({ notifications: ALARM_IDS });
+    if (dueAt == null) {
+      // Logged, snoozed, paused or day ended: clear anything still sitting in the shade.
+      await LocalNotifications.removeAllDeliveredNotifications();
+      return;
+    }
+    await ensureChannel();
+    const who = childName || 'your little one';
+    const now = Date.now();
+    const notifications = ALARM_IDS.slice(0, repeat ? undefined : 1)
+      .map(({ id }, i) => ({
+        id,
+        channelId: CHANNEL,
+        title: i ? 'Still potty time! 🚽' : 'Potty time! 🚽',
+        body: i ? `${who} hasn't tried yet — tap to log it.` : `Time for ${who} to try.`,
+        schedule: { at: new Date(dueAt + i * REPEAT_EVERY_MIN * 60_000), allowWhileIdle: true },
+      }))
+      .filter((n) => n.schedule.at.getTime() > now);
+    if (notifications.length) await LocalNotifications.schedule({ notifications });
   } catch {
     /* notifications unavailable */
   }

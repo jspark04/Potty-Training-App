@@ -27,10 +27,10 @@
     --primary: #3cc4ab;
     --primary-ink: #06231d;
     --track: #24332f;
-    --pee: #4a3f14;
-    --poop: #44352a;
-    --try: #1f3350;
-    --accident: #4d2a30;
+    --pee: rgba(242, 177, 52, 0.2);
+    --poop: rgba(205, 150, 105, 0.22);
+    --try: rgba(96, 156, 245, 0.22);
+    --accident: rgba(240, 110, 125, 0.2);
     --bad: #f0919b;
     --shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
   }
@@ -46,7 +46,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: ui-rounded, 'SF Pro Rounded', 'Nunito', 'Google Sans', Roboto, system-ui, sans-serif;
+  font-family: 'Nunito Variable', ui-rounded, system-ui, sans-serif;
   font-size: 16px;
   line-height: 1.4;
   overscroll-behavior-y: none;
@@ -209,9 +209,9 @@ button:focus-visible {
 /* Gauge */
 .gauge {
   position: relative;
-  width: min(100%, 320px);
+  width: min(100%, 290px);
   aspect-ratio: 1;
-  margin: 0 auto -22px;
+  margin: -4px auto -24px;
 }
 .gauge svg {
   width: 100%;
@@ -275,8 +275,16 @@ button:focus-visible {
   font-size: 4rem;
   font-weight: 700;
   line-height: 1;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
+  display: flex;
+}
+/* Fixed-width digits so the clock doesn't wobble as it ticks. */
+.gauge-time i {
+  font-style: normal;
+  width: 0.62em;
+  text-align: center;
+}
+.gauge-time i.sep {
+  width: 0.3em;
 }
 .gauge-time.small {
   font-size: 2rem;
@@ -337,9 +345,9 @@ button:focus-visible {
 .log {
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-height: 84px;
-  padding: 14px;
+  gap: 10px;
+  min-height: 80px;
+  padding: 12px;
   border-radius: 22px;
   text-align: left;
   transition: transform 0.1s;
@@ -354,6 +362,7 @@ button:focus-visible {
 .log small {
   color: var(--muted);
   font-size: 0.8rem;
+  white-space: nowrap;
 }
 .log-emoji {
   font-size: 1.9rem;
@@ -378,7 +387,7 @@ button:focus-visible {
   background: var(--card);
   border-radius: 22px;
   box-shadow: var(--shadow);
-  padding: 14px 6px;
+  padding: 10px 6px;
   text-align: center;
 }
 .strip div + div {
@@ -423,19 +432,30 @@ button:focus-visible {
   font-weight: 700;
   color: var(--muted);
 }
-.tabs button span {
-  font-size: 1.3rem;
-  line-height: 1;
-  filter: grayscale(1);
-  opacity: 0.7;
+.icon {
+  width: 1.15em;
+  height: 1.15em;
+  flex: none;
+}
+.tabs .icon {
+  width: 24px;
+  height: 24px;
+}
+/* Content fades out behind the floating tab bar instead of peeking around it. */
+.app::after {
+  content: '';
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom)) + 112px);
+  background: linear-gradient(transparent, var(--bg) 45%);
+  pointer-events: none;
+  z-index: 4;
 }
 .tabs .on {
   background: color-mix(in srgb, var(--primary) 14%, transparent);
   color: var(--primary);
-}
-.tabs .on span {
-  filter: none;
-  opacity: 1;
 }
 
 /* Toast */

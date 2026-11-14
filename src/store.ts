@@ -8,7 +8,7 @@ const initial: AppState = {
   v: 1,
   events: [],
   session: idleSession,
-  settings: { childName: '', intervalMin: 30, sound: true, notify: false, askedNotify: false, onboarded: false },
+  settings: { childName: '', intervalMin: 30, sound: true, notify: false, askedNotify: false, repeat: true, onboarded: false },
 };
 
 /** Accepts anything (stored data, an imported file) and returns a valid state or null. */

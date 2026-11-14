@@ -102,6 +102,13 @@ export function SettingsScreen({ state }: { state: AppState }) {
             <input type="checkbox" checked={settings.notify} onChange={(e) => void toggleNotify(e.target.checked)} />
           </label>
         )}
+        <label className="toggle">
+          <span>
+            Keep reminding me
+            <small>Rings again every 2 min (up to 10) until you log or snooze</small>
+          </span>
+          <input type="checkbox" checked={settings.repeat} onChange={(e) => updateSettings({ repeat: e.target.checked })} />
+        </label>
       </section>
 
       <section className="card form">

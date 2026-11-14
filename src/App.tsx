@@ -3,6 +3,7 @@ import { deleteEvent, logEvent } from './actions';
 import { Celebration } from './components/Celebration';
 import { EventSheet } from './components/EventSheet';
 import { Home } from './components/Home';
+import { Icon, type IconName } from './components/Icon';
 import { Insights } from './components/Insights';
 import { Journey } from './components/Journey';
 import { SettingsScreen } from './components/SettingsScreen';
@@ -14,11 +15,11 @@ import { useAppState } from './store';
 
 type Tab = 'today' | 'journey' | 'insights' | 'settings';
 
-const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: 'today', label: 'Today', icon: '⏱️' },
-  { id: 'journey', label: 'Journey', icon: '📖' },
-  { id: 'insights', label: 'Insights', icon: '📈' },
-  { id: 'settings', label: 'Settings', icon: '⚙️' },
+const TABS: { id: Tab; label: string; icon: IconName }[] = [
+  { id: 'today', label: 'Today', icon: 'timer' },
+  { id: 'journey', label: 'Journey', icon: 'book' },
+  { id: 'insights', label: 'Insights', icon: 'chart' },
+  { id: 'settings', label: 'Settings', icon: 'gear' },
 ];
 
 export function useNow(ms = 500) {
@@ -55,8 +56,18 @@ export default function App() {
   // Android app: keep the system alarm in step with the countdown so it rings with the app closed.
   const alarmAt = session.status === 'running' && settings.notify ? session.dueAt : null;
   useEffect(() => {
-    void syncAlarm(alarmAt, settings.childName);
-  }, [alarmAt, settings.childName]);
+    void syncAlarm(alarmAt, settings.childName, settings.repeat);
+  }, [alarmAt, settings.childName, settings.repeat]);
+
+  // While the app is open and a try is overdue, keep chiming until it is logged or snoozed.
+  useEffect(() => {
+    if (!due || !settings.repeat) return;
+    const id = setInterval(() => {
+      if (settings.sound) chime();
+      buzz();
+    }, 30_000);
+    return () => clearInterval(id);
+  }, [due, settings.repeat, settings.sound]);
 
   // Android back button: close the sheet, then return to Today, then leave the app.
   const back = useRef(() => {});
@@ -121,7 +132,7 @@ export default function App() {
       <nav className="tabs" aria-label="Sections">
         {TABS.map((t) => (
           <button key={t.id} className={tab === t.id ? 'on' : ''} aria-current={tab === t.id} onClick={() => setTab(t.id)}>
-            <span aria-hidden>{t.icon}</span>
+            <Icon name={t.icon} />
             {t.label}
           </button>
         ))}

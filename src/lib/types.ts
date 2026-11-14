@@ -26,6 +26,8 @@ export interface Settings {
   notify: boolean;
   /** Whether we have already asked for notification permission once. */
   askedNotify: boolean;
+  /** Keep reminding every couple of minutes until the try is logged or snoozed. */
+  repeat: boolean;
   onboarded: boolean;
 }
 
@@ -41,6 +43,6 @@ export const INTERVAL_STEPS = [10, 15, 20, 30, 45, 60, 90, 120];
 export const EVENT_META: Record<EventType, { label: string; emoji: string; hint: string }> = {
   pee: { label: 'Pee', emoji: '💧', hint: 'In the potty' },
   poop: { label: 'Poop', emoji: '💩', hint: 'In the potty' },
-  try: { label: 'Sat & tried', emoji: '🪑', hint: 'Nothing this time' },
+  try: { label: 'Sat & tried', emoji: '🪑', hint: 'Not this time' },
   accident: { label: 'Accident', emoji: '🌧️', hint: 'It happens' },
 };
