@@ -206,12 +206,29 @@ button:focus-visible {
   outline-offset: 2px;
 }
 
+/* Today fits one screen: the gauge takes whatever height is left, so no button needs a scroll. */
+.screen.fit {
+  height: 100dvh;
+  gap: 12px;
+  padding-bottom: calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom)) + 92px);
+}
+.fit .head h1 {
+  font-size: clamp(1.3rem, 6.4vw, 1.75rem);
+}
+
 /* Gauge */
+.gauge-wrap {
+  flex: 1;
+  min-height: 130px;
+  container-type: size;
+  display: grid;
+  place-items: center;
+}
 .gauge {
   position: relative;
-  width: min(100%, 290px);
+  width: min(100cqw, 100cqh, 340px);
   aspect-ratio: 1;
-  margin: -4px auto -24px;
+  container-type: inline-size;
 }
 .gauge svg {
   width: 100%;
@@ -260,19 +277,19 @@ button:focus-visible {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding-bottom: 8%;
+  gap: 1cqw;
+  padding-bottom: 6%;
   text-align: center;
 }
 .gauge-label {
-  font-size: 0.8rem;
+  font-size: clamp(0.62rem, 4.4cqw, 0.85rem);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
 }
 .gauge-time {
-  font-size: 4rem;
+  font-size: 23cqw;
   font-weight: 700;
   line-height: 1;
   display: flex;
@@ -287,12 +304,12 @@ button:focus-visible {
   width: 0.3em;
 }
 .gauge-time.small {
-  font-size: 2rem;
+  font-size: 11cqw;
   line-height: 1.3;
 }
 .gauge-sub {
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: clamp(0.7rem, 5cqw, 0.9rem);
 }
 .gauge.idle .gauge-label {
   margin-bottom: 10px;
@@ -307,9 +324,22 @@ button:focus-visible {
   font-size: 0.9rem;
   color: var(--primary);
 }
+
+/* Sits in the open bottom of the arc. */
 .chip.interval {
   position: absolute;
-  bottom: 6%;
+  bottom: 0;
+  min-height: 0;
+  height: clamp(30px, 13cqw, 40px);
+  padding: 0 clamp(10px, 5cqw, 16px);
+  font-size: clamp(0.72rem, 5.2cqw, 0.9rem);
+  white-space: nowrap;
+}
+/* Keep a comfortable tap target even when the chip is drawn small. */
+.chip.interval::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
 }
 
 .steps {
@@ -332,22 +362,26 @@ button:focus-visible {
 .controls {
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
+  position: relative;
+}
+.controls .btn {
+  min-height: 44px;
+  padding: 0 14px;
 }
 
 /* Log buttons */
 .log-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 10px;
 }
 .log {
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 80px;
-  padding: 12px;
+  min-height: 68px;
+  padding: 8px 12px;
   border-radius: 22px;
   text-align: left;
   transition: transform 0.1s;
@@ -358,6 +392,7 @@ button:focus-visible {
 }
 .log strong {
   font-size: 1.05rem;
+  white-space: nowrap;
 }
 .log small {
   color: var(--muted);
@@ -382,24 +417,29 @@ button:focus-visible {
 }
 
 .strip {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  background: var(--card);
-  border-radius: 22px;
-  box-shadow: var(--shadow);
-  padding: 10px 6px;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2px 14px;
+  color: var(--muted);
+  font-size: 0.82rem;
 }
-.strip div + div {
-  border-left: 1.5px solid var(--line);
+.strip div {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  white-space: nowrap;
 }
-.strip strong,
+.strip strong {
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+}
 .tile strong {
   display: block;
   font-size: 1.35rem;
   font-variant-numeric: tabular-nums;
 }
-.strip small,
 .tile small {
   color: var(--muted);
   font-size: 0.8rem;
@@ -880,4 +920,16 @@ button:focus-visible {
 
 .gauge.due .gauge-fill {
   display: none;
+}
+
+/* Very short screens: give the gauge a fixed size and let the page scroll instead of squashing. */
+@media (max-height: 600px) {
+  .screen.fit {
+    height: auto;
+    min-height: 100dvh;
+  }
+  .gauge-wrap {
+    flex: none;
+    height: 150px;
+  }
 }

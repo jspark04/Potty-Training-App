@@ -95,12 +95,12 @@ export function Home({ state, now, onLog }: { state: AppState; now: number; onLo
         )}
         {due && (
           <>
-            <span className="gauge-label">Potty time!</span>
+            <span className="gauge-label">Potty time, {who}!</span>
             <span className="gauge-time small">Let's try 🚽</span>
             <span className="gauge-sub">{duration(-(left ?? 0)) === 'just now' ? 'right now' : `${duration(-(left ?? 0))} ago`}</span>
           </>
         )}
-        <button className="chip interval" onClick={() => setPicking((p) => !p)} aria-expanded={picking}>
+        <button className="chip interval" onClick={() => setPicking((p) => !p)} aria-expanded={picking} aria-label="Time between tries">
           every {minutesLabel(settings.intervalMin)} ▾
         </button>
       </Gauge>
@@ -148,23 +148,7 @@ export function Home({ state, now, onLog }: { state: AppState; now: number; onLo
         </div>
       )}
 
-      <section className="strip" aria-label="Today so far">
-        <div>
-          <strong>{today.successes}</strong>
-          <small>in the potty</small>
-        </div>
-        <div>
-          <strong>{today.accidents}</strong>
-          <small>accidents</small>
-        </div>
-        <div>
-          <strong>{dry == null ? '–' : duration(dry)}</strong>
-          <small>dry streak</small>
-        </div>
-      </section>
-
-      <section>
-        <h2>{due ? `How did ${who} do?` : 'Log a moment'}</h2>
+      <section aria-label={due ? `How did ${who} do?` : 'Log a moment'}>
         <div className="log-grid">
           {LOG_ORDER.map((t) => (
             <button key={t} className={`log ${t}`} onClick={() => onLog(t)}>
@@ -180,6 +164,20 @@ export function Home({ state, now, onLog }: { state: AppState; now: number; onLo
         </div>
       </section>
 
+      <section className="strip" aria-label="Today so far">
+        <div>
+          <strong>{today.successes}</strong>
+          <small>in the potty</small>
+        </div>
+        <div>
+          <strong>{today.accidents}</strong>
+          <small>accidents</small>
+        </div>
+        <div>
+          <strong>{dry == null ? '–' : duration(dry)}</strong>
+          <small>dry streak</small>
+        </div>
+      </section>
     </>
   );
 }

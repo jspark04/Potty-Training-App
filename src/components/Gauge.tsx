@@ -13,13 +13,15 @@ export function Gauge({ fraction, tone, children }: { fraction: number; tone: st
   const f = Math.min(1, Math.max(0, fraction));
   const [dx, dy] = pt(135 + 270 * f);
   return (
-    <div className={`gauge ${tone}`}>
+    <div className="gauge-wrap">
+      <div className={`gauge ${tone}`}>
       <svg viewBox="0 0 300 300" aria-hidden>
         <path d={ARC} className="gauge-track" />
         <path d={ARC} className="gauge-fill" pathLength={100} strokeDasharray={`${f * 100} 100`} />
         {f > 0.01 && <circle cx={dx} cy={dy} r="9" className="gauge-dot" />}
       </svg>
-      <div className="gauge-body">{children}</div>
+        <div className="gauge-body">{children}</div>
+      </div>
     </div>
   );
 }

@@ -98,7 +98,7 @@ export default function App() {
 
   return (
     <div className="app" onPointerDown={unlockAudio}>
-      <main className="screen">
+      <main className={tab === 'today' ? 'screen fit' : 'screen'}>
         {tab === 'today' && <Home state={state} now={now} onLog={log} />}
         {tab === 'journey' && <Journey state={state} now={now} onOpen={setSheet} />}
         {tab === 'insights' && <Insights state={state} now={now} />}
